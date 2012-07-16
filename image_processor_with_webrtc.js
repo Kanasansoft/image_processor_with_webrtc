@@ -1,3 +1,30 @@
+function attachUserMedia(videoElement) {
+	if ("getUserMedia" in navigator) {
+		navigator.getUserMedia(
+			{audio : true, video : true, toString : function(){return "video, audio";}},
+			function(stream) {
+				videoElement.src = stream;
+			},
+			function(e) {
+				console.log(err);
+			}
+		);
+	} else if ("webkitGetUserMedia" in navigator) {
+		navigator.webkitGetUserMedia(
+			{audio : true, video : true, toString : function(){return "video, audio";}},
+			function(stream) {
+				var url = webkitURL.createObjectURL(stream);
+				videoElement.src = url;
+			},
+			function(e) {
+				console.log(err);
+			}
+		);
+	} else {
+		console.log("nothing : user stream");
+	}
+}
+
 if (!("requestAnimationFrame" in window)) {
 	window.requestAnimationFrame = 
 			window.msRequestAnimationFrame        ||
@@ -451,17 +478,6 @@ imageProcessors.push(
 	)()
 );
 
-function onSuccess(stream){
-
-	var url = webkitURL.createObjectURL(stream);
-	document.getElementById("video").src = url;
-
-}
-
-function onError(err){
-	console.log(err);
-}
-
 function draw() {
 
 	originalContext.drawImage(video, 0, 0);
@@ -501,7 +517,7 @@ function initialize() {
 		false
 	);
 
-	navigator.webkitGetUserMedia("video,audio", onSuccess, onError);
+	attachUserMedia(document.getElementById("video"));
 
 	var parent = document.getElementById("selectorImageProcessor");
 	for (var i = 0, l = imageProcessors.length; i < l; i++) {
